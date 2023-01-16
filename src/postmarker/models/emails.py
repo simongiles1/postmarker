@@ -223,6 +223,34 @@ class EmailTemplate(BaseEmail):
         return self._manager._send_with_template(**self.as_dict())
 
 
+class EmailTemplateBatchEfficient:
+    def __init__(self, template_id, template_model, recipients, sender, max_size=500):
+        self.template_id = template_id
+        self.template_model = template_model
+        self.recipients = recipients
+        self.sender = sender
+        self.max_size = max_size
+
+    def as_dict(self):
+        """Convert recipients and personalized "wines" fields to a list of dictionaries"""
+        emails = []
+        for recipient in self.recipients:
+            email = {
+                "TemplateId": self.template_id,
+                "TemplateModel": {**self.template_model, **recipient},
+                "To": recipient["Email"],
+                "From": self.sender
+            }
+            emails.append(email)
+        return emails
+
+    def send(self):
+        """Send email batch"""
+        emails = self.as_dict()
+        responses = [self._manager._send_batch_with_template(*batch) for batch in chunks(emails, self.max_size)]
+        return sum(responses, [])
+
+
 class EmailTemplateBatch(Model):
     """Gathers multiple email templates in a single batch."""
 
