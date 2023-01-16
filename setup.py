@@ -8,7 +8,7 @@ with open("README.rst") as file:
 
 
 setup(
-    name="postmarker",
+    name="postmarker_pg",
     url="https://github.com/Stranger6667/postmarker",
     version="1.0",
     license="MIT",
